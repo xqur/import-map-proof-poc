@@ -2,9 +2,10 @@
  * proof.js — Harmless Proof of Concept
  * Security research artifact for import map override demonstration.
  *
- * Works with both:
- *   - SystemJS (single-spa / microfrontend architecture)
+ * Compatible with:
+ *   - SystemJS (single-spa microfrontend architecture)
  *   - Native ES module import()
+ *   - Regular <script> tag
  *
  * This file is NOT malicious. It does NOT:
  *   - Collect cookies or personal data
@@ -14,33 +15,30 @@
  *   - Perform any side effects beyond console + alert
  */
 
-// SystemJS format — works with single-spa microfrontends
-(function (factory) {
-    if (typeof System !== 'undefined' && typeof System.register === 'function') {
-        System.register([], function (_exports, _context) {
-            return {
-                execute: function () {
-                    factory();
-                }
-            };
-        });
-    } else {
-        // Fallback: run immediately for native <script> or dynamic import()
-        factory();
-    }
-})(function () {
+(function () {
     'use strict';
 
-    // Console proof
-    console.log('%c[PoC] Import map override proof: external JavaScript executed successfully', 'color: #00aa00; font-weight: bold;');
+    function execute() {
+        console.log('%c[PoC] Import map override proof: external JavaScript executed successfully', 'color: #00aa00; font-weight: bold;');
 
-    // Visual proof — only if we're in a browser environment
-    if (typeof window !== 'undefined' && window.alert) {
-        var oldAlert = window.alert;
-        setTimeout(function () {
-            oldAlert('PoC successful: external JavaScript module executed');
-        }, 100);
+        if (typeof window !== 'undefined' && window.alert) {
+            setTimeout(function () {
+                window.alert('PoC successful: external JavaScript module executed');
+            }, 100);
+        }
     }
-});
 
+    // SystemJS detection: top-level System.register() for SystemJS module loader
+    if (typeof System !== 'undefined' && typeof System.register === 'function') {
+        System.register([], function (_exports, _context) {
+            'use strict';
+            return { execute: execute };
+        });
+    } else {
+        // Native browser: execute immediately
+        execute();
+    }
+})();
+
+// ES module export — makes this a valid ES module for import()
 export {};
