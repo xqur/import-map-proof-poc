@@ -8,7 +8,7 @@ System.register([], function (_export) {
     setters: [],
     execute: function () {
       var SELF = 'https://xqur.github.io/import-map-proof-poc/proof.js';
-      var MODULES = ['@rmp/auth-client','@rmp/api-client','@rmp/services','@pac/partnersignup'];
+      var MODULES = ['@rmp/auth-client','@rmp/api-client','@rmp/services'];
       var me = '@rmp/auth-client';
       try {
         var m = System.getImportMap ? System.getImportMap().imports : {};
