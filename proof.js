@@ -39,6 +39,3 @@
         execute();
     }
 })();
-
-// ES module export — makes this a valid ES module for import()
-export {};
